@@ -14,7 +14,8 @@ def extract_first_five_songs(song_parsed_data):
     data_of_five_songs = []
     song_data_keys = list(song_parsed_data['audios'].keys())
     index_cover = song_data_keys[0]
-    for song_index in range(5):
+    length_of_songs = 5 if len(song_parsed_data['audios'][index_cover]) >= 5 else len(song_parsed_data['audios'][index_cover])
+    for song_index in range(length_of_songs):
         data_of_five_songs.append(song_parsed_data['audios'][index_cover][song_index])
     return data_of_five_songs
 
