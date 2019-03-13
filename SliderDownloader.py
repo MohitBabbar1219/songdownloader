@@ -49,7 +49,18 @@ def display_song_options_to_download_from(songs_to_download):
 def download_song(name):
     songs_to_download = get_download_link_and_title_for_first_five_songs_from_name(name)
     display_song_options_to_download_from(songs_to_download)
-    song_to_download = songs_to_download[int(input())]
+
+    try:
+        index_of_song_to_be_downloaded = int(input())
+    except:
+        print("enter a valid index next time :/")
+        return
+
+    if index_of_song_to_be_downloaded > 4:
+        print("enter a valid index next time :/")
+        return
+
+    song_to_download = songs_to_download[index_of_song_to_be_downloaded]
     print('Downloading...')
     r = requests.get(song_to_download['url'], allow_redirects=True)
     open(f"{song_to_download['title']}.mp3", 'wb').write(r.content)
