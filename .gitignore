@@ -1,0 +1,7 @@
+*.mp3
+.idea
+SaavnPlaylistScraper.py
+.DS_Store
+playlist.html
+song.html
+__pycache__
