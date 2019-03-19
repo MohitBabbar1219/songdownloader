@@ -46,27 +46,35 @@ def get_download_link_and_title_for_first_n_songs_from_name(song_name, number_of
 def display_song_options_to_download_from(songs_to_download):
     for index, song in enumerate(songs_to_download):
         print(f"{index} -> {song['title']} - {song['duration']}")
-    print("Enter song number to download")
+    print("Enter song numbers to download (separated by space): ")
+
+
+def validate_value_of_indexes(indexes, length_of_options):
+    is_valid = True
+    for index in indexes:
+        is_valid = is_valid and (index > length_of_options - 1)
 
 
 def download_song(name, number_of_songs=10):
     songs_to_download = get_download_link_and_title_for_first_n_songs_from_name(name, number_of_songs)
     display_song_options_to_download_from(songs_to_download)
+    indexes_of_song_to_be_downloaded = input()
     try:
-        index_of_song_to_be_downloaded = int(input())
+        split_indexes = [int(index) for index in indexes_of_song_to_be_downloaded.split(' ')]
     except ValueError:
         print("enter a valid index next time :/")
         return
 
-    if index_of_song_to_be_downloaded > len(songs_to_download) - 1:
+    if validate_value_of_indexes(split_indexes, len(songs_to_download)):
         print("enter a valid index next time :/")
         return
 
-    song_to_download = songs_to_download[index_of_song_to_be_downloaded]
-    print('Downloading...')
-    r = requests.get(song_to_download['url'], allow_redirects=True)
-    open(f"{song_to_download['title']}.mp3", 'wb').write(r.content)
-    print('Done :)')
+    options_selected = [songs_to_download[index] for index in split_indexes]
+    for option in options_selected:
+        print(f"Downloading - {option['title']}...")
+        r = requests.get(option['url'], allow_redirects=True)
+        open(f"{option['title']}.mp3", 'wb').write(r.content)
+        print('Done :)')
 
 
 def command_line_song_download():
