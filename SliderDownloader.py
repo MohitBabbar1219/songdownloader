@@ -10,13 +10,15 @@ def get_song_data(song_name):
     return loads(song_json_data.text)
 
 
-def extract_first_five_songs(song_parsed_data):
+def extract_first_n_songs(song_parsed_data, number_of_songs):
     data_of_five_songs = []
     song_data_keys = list(song_parsed_data['audios'].keys())
     index_cover = song_data_keys[0]
-    length_of_songs = 5 if len(song_parsed_data['audios'][index_cover]) >= 5 else len(song_parsed_data['audios'][index_cover])
+    available_options = song_parsed_data['audios'][index_cover]
+    number_of_available_options = len(available_options)
+    length_of_songs = number_of_songs if number_of_available_options >= number_of_songs else number_of_available_options
     for song_index in range(length_of_songs):
-        data_of_five_songs.append(song_parsed_data['audios'][index_cover][song_index])
+        data_of_five_songs.append(available_options[song_index])
     return data_of_five_songs
 
 
@@ -28,11 +30,11 @@ def generate_url(song_to_be_downloaded):
         f"{quote(song_to_be_downloaded['tit_art'])}.mp3?extra={song_to_be_downloaded['extra']}"
 
 
-def get_download_link_and_title_for_first_five_songs_from_name(song_name):
+def get_download_link_and_title_for_first_n_songs_from_name(song_name, number_of_songs):
     song_data = get_song_data(song_name)
-    five_songs = extract_first_five_songs(song_data)
+    n_songs = extract_first_n_songs(song_data, number_of_songs)
     title_and_link_of_songs = []
-    for current_song in five_songs:
+    for current_song in n_songs:
         song_title = current_song['tit_art']
         duration = current_song['duration']
         valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
@@ -47,17 +49,16 @@ def display_song_options_to_download_from(songs_to_download):
     print("Enter song number to download")
 
 
-def download_song(name):
-    songs_to_download = get_download_link_and_title_for_first_five_songs_from_name(name)
+def download_song(name, number_of_songs=10):
+    songs_to_download = get_download_link_and_title_for_first_n_songs_from_name(name, number_of_songs)
     display_song_options_to_download_from(songs_to_download)
-
     try:
         index_of_song_to_be_downloaded = int(input())
-    except:
+    except ValueError:
         print("enter a valid index next time :/")
         return
 
-    if index_of_song_to_be_downloaded > 4:
+    if index_of_song_to_be_downloaded > len(songs_to_download) - 1:
         print("enter a valid index next time :/")
         return
 
@@ -70,18 +71,12 @@ def download_song(name):
 
 def command_line_song_download():
     parser = ArgumentParser()
-    parser.add_argument("-n", "--name", dest="song_name",
+    parser.add_argument("-s", "--song-name", dest="song_name",
                         help="download song with name", metavar="FILE")
-    parser.add_argument("-q", "--quiet",
-                        action="store_false", dest="verbose", default=True,
-                        help="don't print status messages to stdout")
+    parser.add_argument("-n", "--number-of-options", dest="number_of_options",
+                        help="maximum number of options to display for a search")
     args = parser.parse_args()
-    download_song(args.song_name)
+    download_song(args.song_name, int(args.number_of_options) or 10)
 
 
 command_line_song_download()
-
-# with open('songs.txt', 'r') as songs_file:
-#     for song in songs_file.readlines():
-#         print(song[:-1])
-#         download_song(song[:-1])
